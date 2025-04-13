@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from matplotlib.widgets import Button, CheckButtons
@@ -155,32 +157,26 @@ class CarSimulationGUI:
     def save_qtable(self, event):
         root = tk.Tk()
         root.withdraw()
-
         filepath = filedialog.asksaveasfilename(defaultextension=".pkl", filetypes=[("Pickle Files", "*.pkl")])
         root.destroy()
 
         if filepath:
-            # 移除副檔名，取得不含副檔名的 filename
-            filename = os.path.splitext(os.path.basename(filepath))[0]
             try:
-                self.playground.q_learner.save_qtable(filename)
-                print(f"Q-Table 已儲存為 {filename}")
+                self.playground.q_learner.save_qtable(filepath)
+                print(f"Q-Table 已儲存為 {filepath}")
             except Exception as e:
                 print(f"儲存失敗: {e}")
 
     def load_qtable(self, event):
         root = tk.Tk()
         root.withdraw()
-
         filepath = filedialog.askopenfilename(filetypes=[("Pickle Files", "*.pkl")])
         root.destroy()
 
         if filepath and os.path.exists(filepath):
-            # 移除副檔名，取得不含副檔名的 filename
-            filename = os.path.splitext(os.path.basename(filepath))[0]
             try:
-                self.playground.q_learner.load_qtable(filename)
-                print(f"Q-Table 已載入: {filename}")
+                self.playground.q_learner.load_qtable(filepath)
+                print(f"Q-Table 已載入: {filepath}")
                 self.reset_simulation(None)
                 if self.train.get_status()[0]:
                     self.train.set_active(0)
@@ -306,6 +302,17 @@ class CarSimulationGUI:
 
         print("Path loaded successfully!")
         self.fig.canvas.draw_idle()
+
+
+def resource_path(self, relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        basePath = sys._MEIPASS
+    except Exception:
+        basePath = os.path.abspath(".")
+
+    return os.path.join(basePath, relative_path)
 
 
 if __name__ == "__main__":

@@ -313,7 +313,6 @@ class Playground():
         current_distance_to_goal = self.car.getPosition('center').distToLine2D(self.destination_line)
         approach_goal = current_distance_to_goal < origin_distance_to_goal
         reward = self.compute_reward(origin_state, self.state, approach_goal, action)
-        print(f'reward {'<' if reward < 0 else '>'} 0: {reward:.2f}')
         self.q_learner.update(state=origin_state,
                               action=action,
                               reward=reward,

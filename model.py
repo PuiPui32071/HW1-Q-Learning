@@ -1,4 +1,5 @@
 import json
+import os
 import random
 
 import numpy as np
@@ -58,12 +59,12 @@ class QTable:
         new_q = (1 - alpha) * current_q + alpha * (reward + gamma * max_next_q)
         self.set_q_value(state, action, new_q)
 
-    def save(self, filename: str):
-        with open(f'{filename}.pkl', 'wb') as f:
+    def save(self, basepath: str):
+        with open(f'{basepath}.pkl', 'wb') as f:
             pickle.dump(self.q_table, f)
 
-    def load(self, filename: str):
-        with open(f'{filename}.pkl', 'rb') as f:
+    def load(self, basepath: str):
+        with open(f'{basepath}.pkl', 'rb') as f:
             self.q_table = pickle.load(f)
 
 
@@ -96,17 +97,24 @@ class QLearner:
     def reset(self):
         self.q_table = QTable(actions=self.actions)
 
-    def load_qtable(self, filename: str):
-        self.q_table.load(filename)
-        with open(f'meta_{filename}.json', 'r', encoding='utf-8') as f:
+    def load_qtable(self, filepath: str):
+        # 檔名不含副檔名的 base name
+        basepath = os.path.splitext(filepath)[0]
+        self.q_table.load(basepath)
+
+        meta_path = f"{os.path.dirname(basepath)}/meta_{os.path.basename(basepath)}.json"
+        with open(meta_path, 'r', encoding='utf-8') as f:
             data = json.loads(f.read())
             self.lr = data['lr']
             self.gamma = data['gamma']
             self.epsilon = data['epsilon']
 
-    def save_qtable(self, filename: str):
-        self.q_table.save(filename)
-        with open(f'meta_{filename}.json', 'w', encoding='utf-8') as f:
+    def save_qtable(self, filepath: str):
+        basepath = os.path.splitext(filepath)[0]
+        self.q_table.save(basepath)
+
+        meta_path = f"{os.path.dirname(basepath)}/meta_{os.path.basename(basepath)}.json"
+        with open(meta_path, 'w', encoding='utf-8') as f:
             json.dump({
                 'lr': self.lr,
                 'gamma': self.gamma,
